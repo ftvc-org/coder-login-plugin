@@ -1,33 +1,34 @@
 import React from "react";
 import { Button } from "@cortexapps/react-plugin-ui";
 
-// If you get entity as a prop, use: 
-// interface CoderLinkButtonProps { entity: any; }
-// const CoderLinkButton: React.FC<CoderLinkButtonProps> = ({ entity }) => {
 const CoderLinkButton: React.FC<{ entity: any }> = ({ entity }) => {
-  // Safely extract repo name
   const repoName = entity?.info?.["x-cortex-git"]?.github?.repository || "";
+  console.log("repoName:", repoName);
 
-  // Build the coder link with repoName
-  const coderLink = repoName
-    ? `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${encodeURIComponent(
-        repoName
-      )}&param.git_repo=https%3A%2F%2Fgitlab.onefiserv.net%2Fna%2Fcorp%2Ftechnology-services%2Fheimdall%2Fs3c-heimdall.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true`
-    : "";
+  const coderLink = `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${encodeURIComponent(
+    repoName
+  )}&param.git_repo=https%3A%2F%2Fgitlab.onefiserv.net%2Fna%2Fcorp%2Ftechnology-services%2Fheimdall%2Fs3c-heimdall.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true`;
 
-  // Only show the button if repoName exists
   return (
-    <Button
-      onClick={() => window.open(coderLink, "_blank")}
-      variant="secondary"
-      disabled={!repoName}
-    >
-      coder-link
-    </Button>
+    <>
+      <Button
+        onClick={() => window.open(coderLink, "_blank")}
+        variant="secondary"
+        disabled={!repoName}
+      >
+        coder-link
+      </Button>
+      {!repoName && (
+        <div style={{ color: "red", marginTop: 8 }}>
+          Repo name not found in entity.
+        </div>
+      )}
+    </>
   );
 };
 
 export default CoderLinkButton;
+
 
 
 

@@ -30,9 +30,32 @@ export const JsonView: React.FC<JsonViewProps> = ({ data, theme }) => {
     );
   }
 
+  // Create a deep copy and transform repository fields like
+  // "ftvc-org/github-actions-maven-release-sample" -> "github-actions-maven-release-sample"
+  const transform = (input: any): any => {
+    if (Array.isArray(input)) {
+      return input.map(transform);
+    }
+    if (input && typeof input === "object") {
+      const out: any = {};
+      for (const [k, v] of Object.entries(input)) {
+        if (k === "repository" && typeof v === "string") {
+          const parts = v.split("/");
+          out[k] = parts.length > 1 ? parts[parts.length - 1] : v;
+        } else {
+          out[k] = transform(v);
+        }
+      }
+      return out;
+    }
+    return input;
+  };
+
+  const transformed = transform(data);
+
   return (
     <CodeMirror
-      value={JSON.stringify(data, null, 2)}
+      value={JSON.stringify(transformed, null, 2)}
       extensions={[json()]}
       readOnly
       height="auto"

@@ -45,7 +45,30 @@ export const useEntityDescriptor = ({
       const response = await fetch(
         `${apiBaseUrl}/catalog/${entityTag}/openapi`
       );
-      return await response.json();
+      const data = await response.json();
+
+      // Recursively transform any `repository` fields of the form
+      // "owner/name" -> "name" so the UI shows only the repo name.
+      const transform = (input: any): any => {
+        if (Array.isArray(input)) {
+          return input.map(transform);
+        }
+        if (input && typeof input === "object") {
+          const out: any = {};
+          for (const [k, v] of Object.entries(input)) {
+            if (k === "repository" && typeof v === "string") {
+              const parts = v.split("/");
+              out[k] = parts.length > 1 ? parts[parts.length - 1] : v;
+            } else {
+              out[k] = transform(v);
+            }
+          }
+          return out;
+        }
+        return input;
+      };
+
+      return transform(data);
     },
     enabled: !!apiBaseUrl,
     retry: false,

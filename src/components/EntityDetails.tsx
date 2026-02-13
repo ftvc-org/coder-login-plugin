@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { CardTitle, Loader } from "@cortexapps/react-plugin-ui";
+import { CardTitle, Loader, Button } from "@cortexapps/react-plugin-ui";
 
 import { usePluginContextProvider } from "./PluginContextProvider";
 import useEntityDescriptor from "../hooks/useEntityDescriptor";
@@ -41,34 +41,25 @@ const EntityDetails: React.FC = () => {
   return (
     <Section>
       <Heading>
-        <CardTitle>Entity Details</CardTitle>
+        <CardTitle>Coder</CardTitle>
       </Heading>
-      <div>
-        Below are the entity descriptor, entity custom data and entity custom
-        events for the {context?.entity?.type} {entityTag}. These are fetched
-        from the Cortex REST API and returned by the useEntityDescriptor,
-        useEntityCustomData and useEntityCustomEvents hooks.
+      <div className="mt-3">
+        {(() => {
+          const repoName = entity?.info?.["x-cortex-git"]?.github?.repository || "";
+          const coderUrl = repoName ? `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${repoName}&param.git_repo=https://github.com/ftvc-org/${repoName}.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true` : "";
+          return (
+            <Button
+              variant="secondary"
+              onClick={() => coderUrl && window.open(coderUrl, "_blank")}
+              disabled={!repoName}
+            >
+              Open Workspace
+            </Button>
+          );
+        })()}
       </div>
-      <div className="mt-4">
-        <strong>Entity Descriptor:</strong>
-      </div>
-      <JsonView data={entity} theme={context.theme} />
-      {customData && (
-        <>
-          <div className="mt-4">
-            <strong>Custom Data:</strong>
-          </div>
-          <JsonView data={customData} theme={context.theme} />
-        </>
-      )}
-      {customEvents && (
-        <>
-          <div className="mt-4">
-            <strong>Custom Events:</strong>
-          </div>
-          <JsonView data={customEvents} theme={context.theme} />
-        </>
-      )}
+
+
     </Section>
   );
 };

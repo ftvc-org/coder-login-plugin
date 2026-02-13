@@ -30,11 +30,7 @@ export const AppTabs: React.FC = () => {
   const navigate = useNavigate();
 
   const tabRoutes: TabRoute[] = [
-    { label: "Components", path: "/basic", element: <Coder/> },
-    { label: "Context", path: "/context", element: <PluginContext /> },
-    { label: "Entity", path: "/entity", element: <EntityDetails /> },
-    { label: "Colors", path: "/colors", element: <ColorSwatches /> },
-    { label: "Proxy", path: "/proxy", element: <ProxyTest /> },
+    { label: "Coder", path: "/entity", element: <EntityDetails /> },
   ];
 
   const handleTabsChange = (value: string): void => {
