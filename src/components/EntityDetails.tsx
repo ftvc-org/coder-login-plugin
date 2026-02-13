@@ -40,18 +40,53 @@ const EntityDetails: React.FC = () => {
 
   return (
     <Section>
-      <Heading>
+      {/* <Heading>
         <CardTitle>Coder</CardTitle>
-      </Heading>
+      </Heading> */}
       <div className="mt-3">
         {(() => {
-          const repoName = entity?.info?.["x-cortex-git"]?.github?.repository || "";
-          const coderUrl = repoName ? `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${repoName}&param.git_repo=https://github.com/ftvc-org/${repoName}.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true` : "";
+          // Support both GitHub and GitLab repositories
+          const githubRepo = entity?.info?.["x-cortex-git"]?.github?.repository || "";
+          const gitlabRepo = entity?.info?.["x-cortex-git"]?.gitlab?.repository || "";
+          const fullRepoName = githubRepo || gitlabRepo || "";
+          
+          // Extract repository name from "owner/repo" or "org/group/repo" format
+          const repoNamePart = fullRepoName.split('/').pop() || "";
+          
+          // Sanitize repoName: remove/replace special characters, limit to 32 chars
+          let repoName = repoNamePart
+            .toLowerCase()
+            .replace(/[_]+/g, "-") // Replace underscores with hyphens
+            .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric characters except hyphens
+            .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
+            .substring(0, 32); // Limit to 32 characters
+          
+          // Get repoUrl from x-cortex-link array (supports both GitHub and GitLab)
+          let repoUrl = (entity?.info?.["x-cortex-link"] || []).find(
+            (link: any) => link.url?.includes("github.com") || link.url?.includes("gitlab.com")
+          )?.url || "";
+          
+          // Remove .git suffix if it already exists
+          if (repoUrl.endsWith(".git")) {
+            repoUrl = repoUrl.slice(0, -4);
+          }
+
+          // Debug logging
+          console.log("fullRepoName:", fullRepoName);
+          console.log("repoNamePart:", repoNamePart);
+          console.log("repoName (sanitized):", repoName);
+          console.log("repoUrl:", repoUrl);
+          
+          const coderUrl = repoName && repoUrl ? `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${repoName}&param.git_repo=${repoUrl}.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true` : "";
+          
+          console.log("Button disabled:", !repoName || !repoUrl);
+          console.log("coderUrl:", coderUrl);
+          
           return (
             <Button
               variant="secondary"
               onClick={() => coderUrl && window.open(coderUrl, "_blank")}
-              disabled={!repoName}
+              disabled={!repoName || !repoUrl}
             >
               Open Workspace
             </Button>
