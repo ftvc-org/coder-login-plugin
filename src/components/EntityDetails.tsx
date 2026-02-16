@@ -50,6 +50,10 @@ const EntityDetails: React.FC = () => {
           const gitlabRepo = entity?.info?.["x-cortex-git"]?.gitlab?.repository || "";
           const fullRepoName = githubRepo || gitlabRepo || "";
           
+          // Determine if it's GitHub or GitLab based on which repo is populated
+          const isGitHub = !!githubRepo;
+          const isGitLab = !!gitlabRepo;
+          
           // Extract repository name from "owner/repo" or "org/group/repo" format
           const repoNamePart = fullRepoName.split('/').pop() || "";
           
@@ -62,9 +66,21 @@ const EntityDetails: React.FC = () => {
             .substring(0, 32); // Limit to 32 characters
           
           // Get repoUrl from x-cortex-link array (supports both GitHub and GitLab)
-          let repoUrl = (entity?.info?.["x-cortex-link"] || []).find(
+          const cortexLinks = entity?.info?.["x-cortex-link"] || [];
+          console.log("x-cortex-link array:", cortexLinks);
+          
+          let repoUrl = cortexLinks.find(
             (link: any) => link.url?.includes("github.com") || link.url?.includes("gitlab.com")
           )?.url || "";
+          
+          // If repoUrl is not found in x-cortex-link, build it from x-cortex-git
+          if (!repoUrl && fullRepoName) {
+            if (isGitHub) {
+              repoUrl = `https://github.com/${fullRepoName}`;
+            } else if (isGitLab) {
+              repoUrl = `https://gitlab.com/${fullRepoName}`;
+            }
+          }
           
           // Remove .git suffix if it already exists
           if (repoUrl.endsWith(".git")) {
@@ -75,6 +91,8 @@ const EntityDetails: React.FC = () => {
           console.log("fullRepoName:", fullRepoName);
           console.log("repoNamePart:", repoNamePart);
           console.log("repoName (sanitized):", repoName);
+          console.log("isGitHub:", isGitHub);
+          console.log("isGitLab:", isGitLab);
           console.log("repoUrl:", repoUrl);
           
           const coderUrl = repoName && repoUrl ? `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${repoName}&param.git_repo=${repoUrl}.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true` : "";
