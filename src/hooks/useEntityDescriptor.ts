@@ -47,8 +47,8 @@ export const useEntityDescriptor = ({
       );
       const data = await response.json();
 
-      // Recursively transform any `repository` fields of the form
-      // "owner/name" -> "name" so the UI shows only the repo name.
+      // Recursively transform any `repository` fields
+      // Preserve the full "owner/name" format for proper repository path handling
       const transform = (input: any): any => {
         if (Array.isArray(input)) {
           return input.map(transform);
@@ -56,12 +56,8 @@ export const useEntityDescriptor = ({
         if (input && typeof input === "object") {
           const out: any = {};
           for (const [k, v] of Object.entries(input)) {
-            if (k === "repository" && typeof v === "string") {
-              const parts = v.split("/");
-              out[k] = parts.length > 1 ? parts[parts.length - 1] : v;
-            } else {
-              out[k] = transform(v);
-            }
+            // Keep repository fields as-is to preserve full "owner/name" format
+            out[k] = transform(v);
           }
           return out;
         }

@@ -54,7 +54,7 @@ const EntityDetails: React.FC = () => {
           const isGitHub = !!githubRepo;
           const isGitLab = !!gitlabRepo;
           
-          // Extract repository name from "owner/repo" or "org/group/repo" format
+          // Extract just the repo name (last part after /)
           const repoNamePart = fullRepoName.split('/').pop() || "";
           
           // Sanitize repoName: remove/replace special characters, limit to 32 chars
@@ -88,11 +88,6 @@ const EntityDetails: React.FC = () => {
           }
 
           // Debug logging
-          console.log("fullRepoName:", fullRepoName);
-          console.log("repoNamePart:", repoNamePart);
-          console.log("repoName (sanitized):", repoName);
-          console.log("isGitHub:", isGitHub);
-          console.log("isGitLab:", isGitLab);
           console.log("repoUrl:", repoUrl);
           
           const coderUrl = repoName && repoUrl ? `https://coder.gbs-platform-eng-nonprod.aws.fisv.cloud/templates/FTS/open/workspace?mode=auto&name=${repoName}&param.git_repo=${repoUrl}.git&param.cluster=us-west-2&param.image=workspace-full&param.cpu=1&param.memory=2&param.home_disk_size=10&param.dotfiles_uri=&param.user_npm_token=&param.vscode_web_enabled=false&param.jetbrains_gateway_enabled=false&param.vscode_desktop_enabled=true` : "";
